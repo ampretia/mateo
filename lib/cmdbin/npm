@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const axios = require('axios');
+const winston = require('winston');
+const path = require('path');
+winston.loggers.add('cmdstubs',{
+    transports: [
+        new winston.transports.Console({
+            level: 'debug',
+            label: 'cmdstubs',
+            colorize: 'true'
+        })
+    ]
+});
+
+let logger = winston.loggers.get('cmdstubs');
+let cmd = path.parse(__filename).name;
+let subcmd = process.argv[2];
+let api;
+if (!subcmd){
+    api = `http://localhost:3000/${cmd}/`;
+}
+else {
+    api = `http://localhost:3000/${cmd}/${subcmd}`;
+}
+let data = process.argv.slice(3);
+logger.info(api,data);
+axios.post(api, {
+    cmd,
+    data
+})
+    .then( (response)=>{
+        let rc = response.data.exitcode;
+        logger.info(response.data.stdout);
+        logger.info(response.data.stderr);
+        process.exit(rc);
+    }).catch( (err)=>{
+        logger.error(err);
+        process.exit(1138);
+    });
