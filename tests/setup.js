@@ -1,75 +1,67 @@
+'use strict';
+
 const app = require('../lib/app');
 const debug = require('debug')('mateo:server');
 const http = require('http');
 
 let server;
+let port;
 /**
  * Normalize a port into a number, string, or false.
+ * @param {int} val portnumber to use
+ * @return {int} rationalized port number
  */
-
 function normalizePort(val) {
-    var port = parseInt(val, 10);
-  
+    port = parseInt(val, 10);
+
     if (isNaN(port)) {
-      // named pipe
-      return val;
+        // named pipe
+        return val;
     }
-  
+
     if (port >= 0) {
-      // port number
-      return port;
+        // port number
+        return port;
     }
-  
+
     return false;
-  }
-  
-  /**
+}
+
+/**
    * Event listener for HTTP server "error" event.
+   * @param {Error} error error that has occured
    */
-  
-  function onError(error) {
+function onError(error) {
     if (error.syscall !== 'listen') {
-      throw error;
+        throw error;
     }
-  
-    var bind = typeof port === 'string'
-      ? 'Pipe ' + port
-      : 'Port ' + port;
-  
+
+    let bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
+
     // handle specific listen errors with friendly messages
     switch (error.code) {
-      case 'EACCES':
+    case 'EACCES':
         console.error(bind + ' requires elevated privileges');
         process.exit(1);
         break;
-      case 'EADDRINUSE':
+    case 'EADDRINUSE':
         console.error(bind + ' is already in use');
         process.exit(1);
         break;
-      default:
+    default:
         throw error;
     }
-  }
-  
-  /**
-   * Event listener for HTTP server "listening" event.
-   */
-  
-  function onListening() {
-    var addr = server.address();
-    var bind = typeof addr === 'string'
-      ? 'pipe ' + addr
-      : 'port ' + addr.port;
-    debug('Listening on ' + bind);
-  }
-  
+}
 
-before(()=>{
+
+before((done)=>{
     /**
      * Get port from environment and store in Express.
      */
 
-    var port = normalizePort(process.env.PORT || '3000');
+    let port = normalizePort(process.env.PORT || '3000');
     app.set('port', port);
 
     /**
@@ -84,10 +76,19 @@ before(()=>{
 
     server.listen(port);
     server.on('error', onError);
-    server.on('listening', onListening);
+    server.on('listening', () => {
+        let addr = server.address();
+        let bind = typeof addr === 'string'
+            ? 'pipe ' + addr
+            : 'port ' + addr.port;
+        debug('Listening on ' + bind);
+        done();
+    });
 
 });
 
 after(()=>{
+    console.log('All Done: After');
+    server.close();
     // process.exit(0);
-})
+});
