@@ -13,6 +13,8 @@ let wget = require('./routes/wget');
 let linkchecker = require('./routes/linkchecker');
 
 let app = express();
+let http = require('http').Server(app);
+let io = require('socket.io')(http);
 
 winston.loggers.add('mateo',{
     transports: [
@@ -58,6 +60,10 @@ app.use(function(err, req, res, next) {
 
     // render the error page
     res.status(err.status || 500);
+});
+
+io.on('connection', function(socket){
+    console.log('a user connected');
 });
 
 module.exports = app;

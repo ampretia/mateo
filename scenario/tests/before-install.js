@@ -1,5 +1,21 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 'use strict';
 
+// This is an example test file; this like any other mocha based test
+// Firstly use the chai/sinon packages and extensions you wish to
 require('chai').should();
 const chai = require('chai');
 const sinon = require('sinon');
@@ -7,13 +23,19 @@ chai.should();
 chai.use(require('chai-things'));
 chai.use(require('chai-as-promised'));
 chai.use(require('chai-match'));
-const mateo = require('../lib/mateo');
 
-const npm = require('../lib/cmdstubs/npm');
-const pip = require('../lib/cmdstubs/pip');
-const wget = require('../lib/cmdstubs/wget');
-const sudo = require('../lib/cmdstubs/sudo');
-const linkchecker = require('../lib/cmdstubs/linkchecker');
+// Bring in the mateo library here
+const mateo = require('mateo');
+
+// From mateo also bring in the stubs that represent the commands in the shell script
+const npm = mateo.cmdstubs.npm;
+const pip = mateo.cmdstubs.pip;
+const wget =  mateo.cmdstubs.wget;
+const sudo =  mateo.cmdstubs.sudo;
+const linkchecker =  mateo.cmdstubs.linkchecker;
+
+// This is an object representing a specific environment variable set that will be used 
+// in testing.
 const NEXT_UNSTABLE = {'TRAVIS_TAG':'','TRAVIS_BRANCH':'master'};
 
 describe('before-install', () => {
@@ -25,6 +47,7 @@ describe('before-install', () => {
 
     beforeEach(() => {
         sandbox = sinon.sandbox.create();
+        mateo.reset();
     });
 
     afterEach(() => {
@@ -36,6 +59,7 @@ describe('before-install', () => {
 
         it('good path all correct', async () => {
 
+            // set the stubs 
             sandbox.stub(npm,'install').returns({exitcode : 0, stdout: 'ok',stderr:''});
             sandbox.stub(pip,'install').returns({exitcode : 0, stdout: 'ok',stderr:''});
             sandbox.stub(linkchecker,'_run').returns({exitcode : 0, stdout: 'ok',stderr:''});

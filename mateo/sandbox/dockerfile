@@ -1,0 +1,26 @@
+FROM ubuntu:17.10
+
+# Update Ubuntu Software repository
+RUN apt-get update 
+RUN apt-get install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+RUN apt-get install -y nodejs
+
+
+# Add a new user to run things as needed
+RUN useradd -d /home/ubuntu -ms /bin/bash -g root -G sudo -p ubuntu ubuntu
+USER ubuntu
+WORKDIR /home/ubuntu
+
+# Add the users bin directory to the path. 
+RUN echo 'PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+RUN mkdir -p /home/ubuntu/bin
+
+COPY ./cmdbin/* bin/
+COPY package.json .
+COPY runscript/*.js .
+RUN npm install 
+
+EXPOSE 3333
+CMD [ "npm","start" ]
+#docker run -it -v $(pwd):/home/composer/.cwdwallet ibp-sk-cli       
